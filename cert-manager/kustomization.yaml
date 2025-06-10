@@ -11,7 +11,8 @@ helmCharts:
     version: v1.17.2   # 换成你需要的版本，对应 cert-manager release
     releaseName: cert-manager
     namespace: cert-manager
-    includeCRDs: true  # 必须启用 CRDs
+    valuesInline:
+      installCRDs: true
 
 resources:
   - namespace.yaml
