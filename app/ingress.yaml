@@ -2,15 +2,26 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: nginx-ingress
+  annotations:
+    # 可选：自动重定向HTTP到HTTPS
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # 可选：设置SSL协议版本
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    ingress.vke.byteplus.com/listen-ports: '[{"HTTP": 80},{"HTTPS": 443}]' # 选择多监听器，包括监听协议和端口号
 spec:
+  ingressClassName: alb
+  tls:
+  - hosts:
+    - nginx.bobdev.link
+    secretName: bobdev-link-wildcard  # 引用上面创建的Secret
   rules:
-  - host: nginx.example.com   # 替换为您的实际域名
+  - host: nginx.bobdev.link
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: nginx      # 匹配Service名称
+            name: nginx
             port:
-              number: 80     # 匹配Service的port
+              number: 80
