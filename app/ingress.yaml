@@ -2,11 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: nginx-ingress
-  annotations:
-    ingress.vke.byteplus.com/loadbalancer-port: "443" # 监听器端口号
-    ingress.vke.byteplus.com/loadbalancer-protocol: "https"  # 监听器协议。取值：http、https
 spec:
-  ingressClassName: alb
   tls:
   - hosts:
     - nginx.bobdev.link
