@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: nginx-ingress
   annotations:
-    ingress.vke.byteplus.com/listen-ports: '[{"HTTP": 80},{"HTTPS": 443}]' # 选择多监听器，包括监听协议和端口号
+    ingress.vke.byteplus.com/listen-ports: '[{"TCP": 80},{"TCP": 443}]' # 选择多监听器，包括监听协议和端口号
 spec:
   ingressClassName: alb
   tls:
