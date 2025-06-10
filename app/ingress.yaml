@@ -4,7 +4,7 @@ metadata:
   name: nginx-ingress
   annotations:
     ingress.vke.volcengine.com/loadbalancer-port: "443" # 监听器端口号
-    ingress.vke.volcengine.com/loadbalancer-protocol: "tcp"  # 监听器协议。取值：http、https
+    ingress.vke.volcengine.com/loadbalancer-protocol: "https"  # 监听器协议。取值：http、https
 spec:
   ingressClassName: alb
   tls:
