@@ -3,10 +3,6 @@ kind: Ingress
 metadata:
   name: nginx-ingress
   annotations:
-    # 可选：自动重定向HTTP到HTTPS
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    # 可选：设置SSL协议版本
-    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
     ingress.vke.byteplus.com/listen-ports: '[{"HTTP": 80},{"HTTPS": 443}]' # 选择多监听器，包括监听协议和端口号
 spec:
   ingressClassName: alb
