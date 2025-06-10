@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+spec:
+  rules:
+  - host: nginx.example.com   # 替换为您的实际域名
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx      # 匹配Service名称
+            port:
+              number: 80     # 匹配Service的port

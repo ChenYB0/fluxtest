@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bobdev-link-wildcard
+  namespace: prometheus  # 替换成你实际使用的 namespace
+spec:
+  secretName: bobdev-link-tls  # 最终证书存在这个 secret 里，Ingress 直接用
+  issuerRef:
+    name: letsencrypt-dns-route53  # 与clsuter_issuer.yaml 中 Issuer 名称一致
+    kind: ClusterIssuer
+  commonName: '*.bobdev.link'
+  dnsNames:
+    - '*.bobdev.link'
+    - 'bobdev.link'  # 可选，顺便申请根域名
