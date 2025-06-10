@@ -3,7 +3,8 @@ kind: Ingress
 metadata:
   name: nginx-ingress
   annotations:
-    ingress.vke.volcengine.com/listen-ports: '[{"TCP": 443},{"TCP": 80}]' # 选择多监听器，包括监听协议和端口号
+    ingress.vke.volcengine.com/loadbalancer-port: "443" # 监听器端口号
+    ingress.vke.volcengine.com/loadbalancer-protocol: "tcp"  # 监听器协议。取值：http、https
 spec:
   ingressClassName: alb
   tls:
