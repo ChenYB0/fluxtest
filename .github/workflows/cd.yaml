@@ -35,7 +35,7 @@ jobs:
   build:
     needs: detect-changed
     runs-on: ubuntu-latest
-    if: ${{ success() && fromJson(needs.detect-changed.outputs.matrix) != [] }}
+    if: ${{ success() && fromJson(needs.detect-changed.outputs.matrix).include != [] }}
     strategy:
       matrix:
         dir: ${{fromJSON(needs.detect-changed.outputs.matrix)}}
