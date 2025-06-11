@@ -15,8 +15,6 @@ helmCharts:
     valuesInline:
       installCRDs: true
 
-createNamespace:  true
-
 resources:
   - namespace.yaml
 #  - aws_route53_secret.yaml # 由本地提交
