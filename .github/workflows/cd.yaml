@@ -38,7 +38,7 @@ jobs:
   build:
     needs: detect-changed
     runs-on: ubuntu-latest
-    if: ${{ success() }}
+    if: ${{ success() && needs.detect-changes.outputs.matrix ！= '' }}
     strategy:
       matrix:
         dir: ${{fromJSON(needs.detect-changed.outputs.matrix)}}
@@ -46,8 +46,22 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+      - name: Validate kustomization
+        working-directory: ${{ matrix.dir }}
+        run: |
+          if [ ! -f "kustomization.yaml" ]; then
+            echo "::warning::Skipping ${{ matrix.dir }} - no kustomization.yaml found"
+            exit 0
+          fi
+          echo "Found kustomization.yaml in ${{ matrix.dir }}"
       - name: Run  kustomize & apply
         working-directory: ${{ matrix.dir }}
         run: |
           kustomize build . | cat
+      - uses: tale/kubectl-action@v1
+        with:
+          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+      - run: kubectl get pods
+      - name: apply
+        working-directory: ${{ matrix.dir }}
+        run: kustomize build | kubectl apply -f -
