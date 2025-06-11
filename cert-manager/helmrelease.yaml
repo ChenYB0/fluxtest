@@ -6,6 +6,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 5m
+  targetNamespace: cert-manager
   chart:
     spec:
       chart: cert-manager
