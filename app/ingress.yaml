@@ -6,7 +6,7 @@ spec:
   tls:
   - hosts:
     - nginx.bobdev.link
-    secretName: bobdev-link-wildcard  # 引用上面创建的Secret
+    secretName: bobdev-link-tls  # 引用上面创建的Secret
   rules:
   - host: nginx.bobdev.link
     http:
