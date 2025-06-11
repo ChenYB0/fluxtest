@@ -21,3 +21,4 @@ spec:
           secretAccessKeySecretRef:
             name: route53-credentials-secret
             key: AWS_SECRET_ACCESS_KEY
+

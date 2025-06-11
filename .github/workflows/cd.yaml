@@ -57,11 +57,11 @@ jobs:
       - name: Run  kustomize & apply
         working-directory: ${{ matrix.dir }}
         run: |
-          kustomize build . | cat
+          kustomize build --enable-helm | cat
       - uses: tale/kubectl-action@v1
         with:
           base64-kube-config: ${{ secrets.KUBE_CONFIG }}
       - run: kubectl get pods
       - name: apply
         working-directory: ${{ matrix.dir }}
-        run: kustomize build | kubectl apply -f -
+        run: kustomize build --enable-helm | kubectl apply -f -
