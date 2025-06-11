@@ -1,0 +1,43 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: allow-read-cert
+  namespace: cert-manager  # 证书所在的命名空间
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: prometheus  # 需要使用的命名空间
+- kind: ServiceAccount
+  name: default
+  namespace: beratown
+- kind: ServiceAccount
+  name: default
+  namespace: beratown-game
+- kind: ServiceAccount
+  name: default
+  namespace: beratown-pre
+- kind: ServiceAccount
+  name: default
+  namespace: beratown-prod
+- kind: ServiceAccount
+  name: default
+  namespace: bob-data-dev
+- kind: ServiceAccount
+  name: default
+  namespace: bob-data-prod
+- kind: ServiceAccount
+  name: default
+  namespace: bot-testnet
+- kind: ServiceAccount
+  name: default
+  namespace: cashback-prod
+- kind: ServiceAccount
+  name: default
+  namespace: dapdap-pre
+- kind: ServiceAccount
+  name: default
+  namespace: dapdap-prod
+roleRef:
+  kind: ClusterRole
+  name: view
+  apiGroup: rbac.authorization.k8s.io
