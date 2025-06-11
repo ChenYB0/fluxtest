@@ -11,11 +11,14 @@ helmCharts:
     version: v1.17.2   # 换成你需要的版本，对应 cert-manager release
     releaseName: cert-manager
     includeCRDs: true  # 必须启用 CRDs
+    namespace: cert-manager
     valuesInline:
       installCRDs: true
-      namespace: cert-manager
+
+createNamespace:  true
 
 resources:
+  - namespace.yaml
 #  - aws_route53_secret.yaml # 由本地提交
   - cluster_issuer.yaml
   - rolebinding.yaml
