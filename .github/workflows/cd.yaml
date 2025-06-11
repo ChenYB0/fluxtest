@@ -27,7 +27,10 @@ jobs:
             grep '^byteplus_k8s/.*.yaml$' | \
             sed -r 's|/[^\/]+.yaml||' | \
             awk -F'/' -v OFS='/' '{print $1,$2,$3}' | \
-            uniq)
+            uniq | \
+            jq -R . | jq -s . | \
+            tr -d '\n' | \
+            tr -d ' ')
           echo "Changed directories: $changed_dirs"
           echo "matrix=$changed_dirs" >> $GITHUB_OUTPUT
           cat $GITHUB_OUTPUT
