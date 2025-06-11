@@ -1,0 +1,50 @@
+name: Build and Push Docker Images by Directory Version
+
+on:
+  push:
+    paths:
+      - 'byteplus_k8s/**/*.yaml'    # 匹配 docker/build 开头的目录
+    branches:
+      - main
+
+jobs:
+  detect-changed:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed version directories
+        id: set-matrix
+        run: |
+          # 获取变更的目录路径
+          echo "event.before: ${{ github.event.before }}"
+          echo "github.sha: ${{ github.sha }}"
+          changed_dirs=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | \
+            grep '^byteplus_k8s/.*.yaml$' | \
+            sed -r 's|/[^\/]+.yaml||' | \
+            awk -F'/' -v OFS='/' '{print $1,$2,$3}' | \
+            uniq)
+          echo "Changed directories: $changed_dirs"
+          echo "matrix=$changed_dirs" >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
+
+  build:
+    needs: detect-changed
+    runs-on: ubuntu-latest
+    if: ${{ success() && fromJson(needs.detect-changed.outputs.matrix) != [] }}
+    strategy:
+      matrix:
+        dir: ${{fromJSON(needs.detect-changed.outputs.matrix)}}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run  kustomize & apply
+        working-directory: ${{ matrix.dir }}
+        run: |
+          kustomize build . | cat
