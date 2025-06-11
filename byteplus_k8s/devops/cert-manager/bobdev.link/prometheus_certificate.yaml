@@ -2,7 +2,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: bobdev-link-wildcard
-  namespace: prometheus  # 替换成你实际使用的 namespace
+  namespace: cert-manager
 spec:
   secretName: bobdev-link-tls  # 最终证书存在这个 secret 里，Ingress 直接用
   issuerRef:
