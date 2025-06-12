@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
   - cluster_issuer.yaml
-  - rolebinding.yaml
 #  - aws_route53_secret.yaml # kubectl -n cert-manager apply -f aws_route53_secret.yaml
 # ssl list
   - bobdev-link-certificate.yaml
