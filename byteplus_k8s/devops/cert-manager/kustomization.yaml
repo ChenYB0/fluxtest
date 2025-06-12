@@ -17,7 +17,7 @@ helmCharts:
       namespace: cert-manager
     valuesFile: values.yaml
   - name: reflector
-    repo: oci://ghcr.io/emberstack/helm-charts/reflector
+    repo: https://emberstack.github.io/helm-charts
     version: v9.1.12
     releaseName: reflector
     namespace: cert-manager
