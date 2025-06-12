@@ -2,6 +2,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: nginx-ingress
+  annotations:
+    ingress.vke.volcengine.com/listen-ports: '[{"HTTP": 80},{"HTTPS": 443}]'
 spec:
   tls:
   - hosts:
