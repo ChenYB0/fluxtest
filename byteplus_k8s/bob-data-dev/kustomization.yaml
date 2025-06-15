@@ -1,6 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: test
+namespace: bob-data-dev
 resources:
   - namespace.yaml
   - bob-data-near-api-dev/bob-data-near-api-dev.yaml
