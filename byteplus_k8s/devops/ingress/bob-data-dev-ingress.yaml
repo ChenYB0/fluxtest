@@ -12,7 +12,8 @@ spec:
     - api.bobdev.link
     secretName: bobdev-link-tls  # 引用上面创建的Secret
   rules:
-    - http:
+    - host: api.bobdev.link
+      http:
         paths:
           - backend:
               service:
