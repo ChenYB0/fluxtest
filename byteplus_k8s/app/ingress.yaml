@@ -3,7 +3,21 @@ kind: Ingress
 metadata:
   name: nginx-ingress
   annotations:
-    ingress.vke.volcengine.com/listen-ports: '[{"HTTP": 80},{"HTTPS": 443}]'
+    ingress.vke.volcengine.com/loadbalancer-name: "clb-bobdev-link"
+    # Specify the name of the CLB instance.
+    ingress.vke.volcengine.com/loadbalancer-spec: "small_1"
+    # Specify the specification of the CLB instance. small_1: 200 Mbps; small_2: 500 Mbps; medium_1: 1,000 Mbps; meidum_2: 2,000 Mbps; large_1: 5,000 Mbps; and large_2: 10,000 Mbps.
+    ingress.vke.volcengine.com/loadbalancer-subnet-id: "subnet-14w5r68gwvx8g3tvs81xzjfkq"
+    # Specify the subnet to which the CLB instance belongs.
+    ingress.vke.volcengine.com/loadbalancer-address-type: "public"
+    # Specify the access network type of the CLB instance. Valid values: public and private.
+    ingress.vke.volcengine.com/loadbalancer-bandwidth:  "100"
+    #  Specify the maximum bandwidth of the elastic IP address (EIP) of the load balancer instance if the instance is an internet-facing instance. Valid value range: 1–500. Unit: Mbps.
+    ingress.vke.volcengine.com/loadbalancer-scheduler: "wrr"
+    # Specify the load balancing algorithm. Valid values: wrr, wlc, and sh.
+    ingress.vke.volcengine.com/loadbalancer-protocol: "https"
+    # Specify the listening protocol of the CLB instance. Valid values: http and https.
+    ingress.vke.volcengine.com/loadbalancer-port: "443"
 spec:
   tls:
   - hosts:
@@ -20,3 +34,24 @@ spec:
             name: nginx
             port:
               number: 80
+#---
+## Service
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: external-ip-service
+#spec:
+#  ports:
+#  - port: 80
+#    targetPort: 80
+#---
+## Endpoints
+#apiVersion: v1
+#kind: Endpoints
+#metadata:
+#  name: external-ip-service
+#subsets:
+#- addresses:
+#  - ip: 1.2.3.4  # 外部IP
+#  ports:
+#  - port: 80
