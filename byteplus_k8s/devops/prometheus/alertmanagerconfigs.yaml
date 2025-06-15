@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: alertmanagerconfig
+  namespace: prometheus
+  labels:
+    alertmanagerConfig: alertmanagerconfig
+spec:
+  receivers:
+    - name: 'notifier'
+      webhookConfigs:
+        - sendResolved: true
+          url: 'http://notifier-svc.bob-data-prod:8080/api/v1/alertWebhook'
+  route:
+    groupBy: ['alertname', 'status', 'environment']
+    groupInterval: 1h
+    groupWait: 30s
+    repeatInterval: 8735h
+    receiver: 'notifier'

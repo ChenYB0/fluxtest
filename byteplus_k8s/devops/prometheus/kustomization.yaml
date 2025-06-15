@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: prometheus
+## 开启 Helm Charts
+helmCharts:
+  - name: kube-prometheus-stack
+    repo: https://prometheus-community.github.io/helm-charts
+    version: 58.2.0
+    releaseName: prometheus
+    valuesInline:
+      installCRDs: true
+    valuesFile: value.yml
+resources:
+  - namespace.yaml
+  - alertmanagerconfigs.yaml
+  - rules/prod-rules.yaml
+  - rules/dev-rules.yaml
+  - pod-monitor.yaml
+  - scrape-config.yaml

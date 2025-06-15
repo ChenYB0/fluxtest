@@ -1,0 +1,165 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    release: prometheus
+  name: prod-rules
+spec:
+  groups:
+    - name: bob-data
+      rules:
+        - alert: CurrentBlockHeightLow
+          expr: bob_data_scanner_eth_latest_block - bob_data_scanner_eth_current_block > 200
+          for: 1m
+          labels:
+            severity: high
+            environment: prod
+            developer: jaki
+          annotations:
+            summary: "{{ $labels.pod }} 发生了告警：Chain ID {{ $labels.chain_id }} 爬块程序读取的当前块高低于最新块高，差值为 {{ $value }}"
+            description: "LABELS = {{ $labels }}"
+
+    - name: refuel-prod
+      rules:
+        - alert: TooManyGoRoutine
+          expr: go_goroutines{namespace="refuel-prod"}>60000
+          for: 30s
+          labels:
+            severity: high
+            environment: prod
+            developer: maoma
+          annotations:
+            summary: "{{ $labels.pod }} 发生了告警：Too many go-routines(>60000)"
+            description: "VALUE = {{ $value }}. LABELS = {{ $labels }}"
+
+        - alert: TooManyMutex
+          expr: mutex{namespace="refuel-prod"}>3
+          for: 30s
+          labels:
+            severity: high
+            environment: prod
+            developer: maoma
+          annotations:
+            summary: "{{ $labels.pod }} 发生了告警：Too many mutex(>3)"
+            description: "VALUE = {{ $value }}. LABELS = {{ $labels }}"
+
+        - alert: RefuelerChainlinkClientErrorAlert
+          expr: increase (refueler_chainlink_contract_client_errors{namespace="refuel-prod"} [1m]) > 5
+          for: 1m
+          labels:
+            severity: medium
+            environment: prod
+            developer: maoma
+          annotations:
+            summary: "{{ $labels.pod }} 发生了告警：{{ $labels.token_address }} Chainlink 预言机喂价客户端连接存在错误，近一分钟的错误数为{{ $value }}"
+            description: "VALUE = {{ $value }}. LABELS = {{ $labels }}"
+
+        - alert: RefuelerHotWalletBalanceLow
+          expr: refueler_eth_balance{namespace="refuel-prod", type="hot_wallet"} < 0.4
+          for: 0s
+          labels:
+            severity: high
+            environment: prod
+            developer: maoma
+          annotations:
+            summary: "{{ $labels.pod }} 发生了告警：{{ $labels.chain_name }}后端地址{{ $labels.address }}余额低于阈值，当前余额为{{ $value }}"
+            description: "VALUE = {{ $value }}. LABELS = {{ $labels }}"
+
+        - alert: RefuelerContractBalanceLow
+          expr: refueler_eth_balance{namespace="refuel-prod", type="contract"} < 0.4
+          for: 0s
+          labels:
+            severity: high
+            environment: prod
+            developer: maoma
+          annotations:
+            summary: "{{ $labels.pod }} 发生了告警：{{ $labels.chain_name }}合约地址{{ $labels.address }}余额低于阈值，当前余额为{{ $value }}"
+            description: "VALUE = {{ $value }}. LABELS = {{ $labels }}"
+
+        - alert: RefuelerContractBalanceHigh
+          expr: refueler_eth_balance{namespace="refuel-prod",type="contract",chain_name!="x_layer_testnet"} > 20
+          for: 0s
+          labels:
+            severity: medium
+            environment: prod
+            developer: maoma
+          annotations:
+            summary: "{{ $labels.pod }} 发生了告警：{{ $labels.chain_name }}合约地址{{ $labels.address }}余额高于阈值，当前余额为{{ $value }}"
+            description: "VALUE = {{ $value }}. LABELS = {{ $labels }}"
+
+        - alert: RefuelerChainRPCClientError
+          expr: increase (refueler_eth_rpc_client_errors{namespace="refuel-prod"} [1m]) > 5
+          for: 1m
+          labels:
+            severity: medium
+            environment: prod
+            developer: maoma
+          annotations:
+            summary: "{{ $labels.pod }} 发生了告警：{{ $labels.chain_name }}的RPC服务发生了较多错误，近一分钟的错误数为{{ $value }}"
+            description: "VALUE = {{ $value }}. LABELS = {{ $labels }}"
+
+        - alert: RefuelerDBSavingError
+          expr: increase (refueler_db_saving_error{namespace="refuel-prod"} [1m]) > 0
+          for: 0s
+          labels:
+            severity: high
+            environment: prod
+            developer: maoma
+          annotations:
+            summary: "{{ $labels.pod }} 发生了告警：数据库读写发生错误，近一分钟的错误数为{{ $value }}"
+            description: "VALUE = {{ $value }}. LABELS = {{ $labels }}"
+
+        - alert: VaultSignatureError
+          expr: refueler_vault_signature_error{namespace="refuel-prod"} != 0
+          for: 0s
+          labels:
+            severity: highest
+            environment: prod
+            developer: maoma
+          annotations:
+            summary: "{{ $labels.pod }} 发生了告警：签名机签名发生错误"
+            description: "VALUE = {{ $value }}. LABELS = {{ $labels }}"
+
+        - alert: RefuelerRiskAddressOccurs
+          expr: refueler_address_risk_found{namespace="refuel-prod"} > 0
+          for: 0s
+          labels:
+            severity: medium
+            environment: prod
+            developer: maoma
+          annotations:
+            summary: "{{ $labels.pod }} 发生了告警：后台监测到有风险的地址{{ $labels.address }}使用了Gas服务，转账请求被拦截"
+            description: "VALUE = {{ $value }}. LABELS = {{ $labels }}"
+
+        - alert: RefuelerSendGasAbnormal
+          expr: sum by (namespace) (refueler_send_gas_job_working{namespace="refuel-prod"}) != 1
+          for: 1m
+          labels:
+            severity: highest
+            environment: prod
+            developer: maoma
+          annotations:
+            summary: "refueler 发生了告警：发送Gas的进程数不为1，这可能导致漏发或者重发"
+            description: "VALUE = {{ $value }}. LABELS = {{ $labels }}"
+
+        - alert: RefuelerContractBalanceInsufficient
+          expr: refueler_eth_balance_insufficient{namespace="refuel-prod"} == 1
+          for: 0s
+          labels:
+            severity: highest
+            environment: prod
+            developer: maoma
+          annotations:
+            summary: "{{ $labels.pod }} 发生了告警：{{ $labels.chain_name }}合约地址{{ $labels.address }}余额已经不足，无法完成现有的Gas发放交易，请立即处理"
+            description: "VALUE = {{ $value }}. LABELS = {{ $labels }}"
+
+        - alert: RefuelerTransactionAccelerated
+          expr: increase (refueler_transaction_accelerated{namespace="refuel-prod"} [1m]) > 0
+          for: 0s
+          labels:
+            severity: medium
+            environment: prod
+            developer: maoma
+          annotations:
+            summary: "{{ $labels.pod }} 发生了告警：{{ $labels.chain_name }}上交易发生了拥堵，后端发起了交易加速，最近一分钟加速的请求数为: {{ $value }}"
+            description: "VALUE = {{ $value }}. LABELS = {{ $labels }}"
