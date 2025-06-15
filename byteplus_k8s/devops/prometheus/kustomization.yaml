@@ -12,6 +12,7 @@ helmCharts:
     valuesFile: values.yaml
 resources:
   - namespace.yaml
+  - crds.yaml
   - alertmanagerconfigs.yaml
   - rules/prod-rules.yaml
   - rules/dev-rules.yaml
