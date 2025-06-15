@@ -31,15 +31,15 @@ jobs:
 #            jq -R . | jq -s . | \
 #            tr -d '\n' | \
 #            tr -d ' ')
-            changed_dirs=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | \
+          changed_dirs=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | \
                grep '^byteplus_k8s/.*.yaml$' | \
                sed -r 's|/[^\/]+.yaml||' | \
-               awk -F'/' -v OFS='/' '{
-                if ($0 ~ /k8s\/devops/) {
-                  print $1"/"$2"/"$3
-                } else {
-                  print $1"/"$2
-                }
+               awk -F'/' -v OFS='/' '{ \
+                if ($0 ~ /k8s\/devops/) { \
+                  print $1"/"$2"/"$3 \
+                } else { \
+                  print $1"/"$2 \
+                } \
                }' | \
                uniq | \
                jq -R . | jq -s . | \
