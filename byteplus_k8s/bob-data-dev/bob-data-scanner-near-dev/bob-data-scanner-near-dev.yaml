@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bob-data-scanner-near-dev-conf
+  namespace: bob-data-dev
+data:
+  config.toml: |
+    [server]
+    runMode = "info"
+    blockPoolSize = 100
+    chunkPoolSize = 180
+    parsePoolSize = 120
+    blockOutputChannelSize = 100
+    chunkOutputChannelSize = 600
+    chunkMaxBatchWait = 5
+    parseMaxBatchWait = 5
+    saveMaxWait = 5
+    gracefulTimeout = 30
+    
+    [chain]
+    node = "https://archival-rpc.testnet.near.org"
+    backupNodes = []
+    rpcTimeOut = 20
+    retryInterval = 3
+    startBlock = 158867261
+    endBlock = 0
+    # The scanner runs in three different types of goroutines for performance purposes, which can result in "dirty blocks."
+    # This means that some transactions in the "dirty blocks" may not have been collected by the scanner yet.
+    # Therefore, when the scanner is restarted, it should re-scan these "dirty blocks" with some overlap to ensure no transactions are missed.
+    # Typically, the number of "dirty blocks" to re-scan should be double the value of "blockPoolSize" for safety.
+    dirtyBlock = 200
+    
+    [mysql]
+    [mysql.db]
+    dsn = "admin:${{ MYSQL_PASSWORD }}@tcp(${{ MYSQL_HOSTNAME }}:3306)/bob_dev?timeout=5s&readTimeout=5s&writeTimeout=5s&parseTime=true&loc=Local&charset=utf8mb4"
+    active = 20
+    idle = 20
+    connMaxLifeTime = 30
+    
+    [contract]
+    interestedContracts = ["exchange.ref-dev.testnet", "refv2-dev.ref-dev.testnet", "boostfarm-dev.ref-dev.testnet", "contract.dev-burrow.testnet"]
+    
+    [contract.alias]
+    ref = "exchange.ref-dev.testnet"
+    dclRef = "refv2-dev.ref-dev.testnet"
+    farm = "boostfarm-dev.ref-dev.testnet"
+    burrow = "contract.dev-burrow.testnet"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bob-data-scanner-near-dev
+  namespace: bob-data-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bob-data-scanner-near-dev
+  template:
+    metadata:
+      labels:
+        app: bob-data-scanner-near-dev
+        prometheus.io/scrape: "true"
+    spec:
+      initContainers:
+        - name: init-k8s-secret-fetcher
+          image: 058264463173.dkr.ecr.us-east-1.amazonaws.com/init-k8s-secret-fetcher:latest
+          envFrom:
+            - secretRef:
+                name: bob-data-secret
+          volumeMounts:
+            - name: "config"
+              mountPath: "/config"
+            - name: "rw-config"
+              mountPath: "/rw-config"
+      containers:
+        - name: bob-data-scanner-near-dev
+          image: 058264463173.dkr.ecr.us-east-1.amazonaws.com/bob-data-scanner-near:latest
+          resources:
+            limits:
+              memory: "800M"
+              cpu: "1"
+            requests:
+              memory: "100M"
+              cpu: "0.1"
+          ports:
+            - containerPort: 9111
+              name: metrics
+          volumeMounts:
+            - name: "rw-config"
+              mountPath: "/config"
+      volumes:
+        - name: config
+          configMap:
+            name: bob-data-scanner-near-dev-conf
+            items:
+              - key: config.toml
+                path: config.toml
+        - name: rw-config
+          emptyDir: {}

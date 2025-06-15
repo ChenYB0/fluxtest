@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bob-data-near-api-test-conf
+  namespace: bob-data-dev
+data:
+  config.toml: |
+    [server]
+    runMode = "debug"
+    addr = "0.0.0.0:8080"
+    env = "test"
+    
+    [mysql]
+    [mysql.db]
+    dsn = "admin:${{ MYSQL_PASSWORD }}@tcp(${{ MYSQL_HOSTNAME }}:3306)/bob_test?timeout=5s&readTimeout=5s&writeTimeout=5s&parseTime=true&loc=Local&charset=utf8mb4"
+    active = 20
+    idle = 20
+    connMaxLifeTime = 30
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bob-data-near-api-test
+  namespace: bob-data-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bob-data-near-api-test
+  template:
+    metadata:
+      labels:
+        app: bob-data-near-api-test
+        prometheus.io/scrape: "true"
+    spec:
+      initContainers:
+        - name: init-k8s-secret-fetcher
+          image: 058264463173.dkr.ecr.us-east-1.amazonaws.com/init-k8s-secret-fetcher:latest
+          envFrom:
+            - secretRef:
+                name: bob-data-secret
+          volumeMounts:
+            - name: "config"
+              mountPath: "/config"
+            - name: "rw-config"
+              mountPath: "/rw-config"
+      containers:
+        - name: bob-data-near-api-test
+          image: 058264463173.dkr.ecr.us-east-1.amazonaws.com/bob-data-near-api:latest
+          envFrom:
+            - secretRef:
+                name: bob-data-secret
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 30
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 30
+          resources:
+            limits:
+              memory: "900M"
+              cpu: "0.5"
+            requests:
+              memory: "100M"
+              cpu: "0.1"
+          ports:
+            - containerPort: 9111
+              name: metrics
+            - containerPort: 8080
+              name: http
+          volumeMounts:
+            - name: "rw-config"
+              mountPath: "/config"
+      volumes:
+        - name: config
+          configMap:
+            name: bob-data-near-api-test-conf
+            items:
+              - key: config.toml
+                path: config.toml
+        - name: rw-config
+          emptyDir: {}
+          
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bob-data-near-api-test-svc
+  namespace: bob-data-dev
+spec:
+  type: ClusterIP
+  selector:
+    app: bob-data-near-api-test
+  ports:
+    - port: 8080
+      protocol: TCP
+      name: port8080
