@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.beta.kubernetes.io/volcengine-loadbalancer-name: "clb-dev"
+    # Optional. The name of the CLB instance that you want to create.
+    service.beta.kubernetes.io/volcengine-loadbalancer-subnet-id: "subnet-14w5r68gwvx8g3tvs81xzjfkq"
+    # Required. The ID of the subnet in which you want to launch the CLB instance.
+    service.beta.kubernetes.io/volcengine-loadbalancer-address-type: "PUBLIC"
+    # Optional. The network type of the CLB instance. If you do not specify this annotation, the network type is PUBLIC by default.
+    service.beta.kubernetes.io/volcengine-loadbalancer-isp-type: "BGP"
+    # Optional. The Internet Service Provider (ISP) type of the CLB instance.
+    service.beta.kubernetes.io/volcengine-loadbalancer-billing-type: "2"
+    # Optional. The billing method of the CLB instance.
+    service.beta.kubernetes.io/volcengine-loadbalancer-eip-billing-type: "3"
+    # Optional. The billing method of the elastic IP address (EIP).
+    service.beta.kubernetes.io/volcengine-loadbalancer-spec: "small_1"
+    # Optional. The specification of the CLB instance.
+    service.beta.kubernetes.io/volcengine-loadbalancer-sync-fields: "spec"
+
+  name: ingress-nginx-controller-dev # The name of the Service.
+  namespace: kube-system # The namespace to which the Service belongs.
+spec:
+  externalTrafficPolicy: Cluster
+  selector:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+  ports:
+  - name: https # The name of the port mapping policy.
+    port: 443 # The port of the Service
+    protocol: TCP # The communication protocol on the port. Valid values: TCP and UDP.
+    targetPort: 443 # The container port.
+  type: LoadBalancer # The Service type.
