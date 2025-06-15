@@ -985,23 +985,9 @@ grafana:
     ## Annotations for Grafana Ingress
     ##
     annotations:
-      alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
-      alb.ingress.kubernetes.io/healthcheck-port: traffic-port
-      alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
-      alb.ingress.kubernetes.io/target-type: ip
-      alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
-      alb.ingress.kubernetes.io/success-codes: '200'
-      alb.ingress.kubernetes.io/healthy-threshold-count: '2'
-      alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
-      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:058264463173:certificate/ef564461-8fc4-4d24-9f2c-cf9390f8cff2
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
-      alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
-      kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
       meta.helm.sh/release-name: grafana
       meta.helm.sh/release-namespace: prometheus
-      alb.ingress.kubernetes.io/group.name: apps
-      alb.ingress.kubernetes.io/group.order: '10'
       # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
 
@@ -3157,23 +3143,9 @@ prometheus:
     ingressClassName: alb
 
     annotations:
-      alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
-      alb.ingress.kubernetes.io/healthcheck-port: traffic-port
-      alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
-      alb.ingress.kubernetes.io/target-type: ip
-      alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
-      alb.ingress.kubernetes.io/success-codes: '200'
-      alb.ingress.kubernetes.io/healthy-threshold-count: '2'
-      alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
-      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:058264463173:certificate/ef564461-8fc4-4d24-9f2c-cf9390f8cff2
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
-      alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
-      kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
       meta.helm.sh/release-name: prometheus
       meta.helm.sh/release-namespace: prometheus
-      alb.ingress.kubernetes.io/group.name: apps
-      alb.ingress.kubernetes.io/group.order: '10'
     labels: {}
 
     ## Redirect ingress to an additional defined port on the service
