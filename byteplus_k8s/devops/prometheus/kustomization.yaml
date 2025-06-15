@@ -9,7 +9,7 @@ helmCharts:
     releaseName: prometheus
     valuesInline:
       installCRDs: true
-    valuesFile: value.yml
+    valuesFile: values.yaml
 resources:
   - namespace.yaml
   - alertmanagerconfigs.yaml
