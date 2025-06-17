@@ -2,7 +2,7 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: ops-storages
-provisioner: ebs.csi.byteplus.com
+provisioner: ebs.csi.volcengine.com
 parameters:
   ChargeType: PostPaid
   type: ESSD_PL0
