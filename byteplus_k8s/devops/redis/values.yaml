@@ -12,13 +12,13 @@ master:
     type: LoadBalancer
   persistence:
     storageClass: "ops-storages"
-    size: 8Gi
+    size: 10Gi
 
 replica:
   replicaCount: 2
   persistence:
     storageClass: "ops-storages"
-    size: 8Gi
+    size: 10Gi
 
 image:
   tag: "6.2.6"
