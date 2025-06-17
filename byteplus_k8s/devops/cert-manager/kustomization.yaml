@@ -19,5 +19,3 @@ helmCharts:
     version: 9.1.11
     releaseName: reflector
     namespace: cert-manager
-resources:
-  - namespace.yaml

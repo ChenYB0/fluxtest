@@ -7,11 +7,10 @@ helmCharts:
     repo: https://prometheus-community.github.io/helm-charts
     version: 58.2.0
     releaseName: prometheus
-    valuesInline:
-      installCRDs: true
+#    valuesInline:
+#      installCRDs: true
     valuesFile: values.yaml
 resources:
-  - namespace.yaml
   - alertmanagerconfigs.yaml
   - rules/prod-rules.yaml
   - rules/dev-rules.yaml

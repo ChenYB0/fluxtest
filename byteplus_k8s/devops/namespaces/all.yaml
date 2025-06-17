@@ -1,0 +1,98 @@
+## devops
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prometheus
+---
+
+# beratown
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: beratown
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: beratown-pre
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: beratown-game
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: beratown-prod
+---
+## bob
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bob-data-dev
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bob-data-prod
+
+---
+
+# bot
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bot-testnet
+
+---
+#cashback
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cashback-prod
+---
+
+#dapdap
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dapdap-pre
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dapdap-prod
+---
+# monad
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monad-testnet
+---
+# near lake
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: near-lake-prod
+---
+#refuel
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: refuel-dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: refuel-prod
