@@ -6,7 +6,7 @@ metadata:
 spec:
   secretName: bobdev-link-tls  # 最终证书存在这个 secret 里，Ingress 直接用
   issuerRef:
-    name: letsencrypt-dns-route53  # 与clsuter_issuer.yaml 中 Issuer 名称一致
+    name: letsencrypt-dns-route53  # 与 clsuter_issuer.yaml 中 Issuer 名称一致
     kind: ClusterIssuer
   commonName: '*.bobdev.link'
   dnsNames:
@@ -15,6 +15,6 @@ spec:
   secretTemplate:
     annotations:
       reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "test,bob-data-dev"  # 同步到test
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "test,bob-data-dev,prometheus"  # 同步到test,多个命名空间用逗号分隔
       reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-      reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "test,bob-data-dev"
+      reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "test,bob-data-dev,prometheus"
