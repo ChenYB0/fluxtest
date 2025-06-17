@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: refuel-dev
+## 开启 Helm Charts
+helmCharts:
+  - name: redis
+    repo: https://charts.bitnami.com/bitnami
+    version: 21.2.3
+    releaseName: redis
+    namespace: refuel-dev
+    valuesInline:
+      installCRDs: true
+    valuesFile: values.yaml
