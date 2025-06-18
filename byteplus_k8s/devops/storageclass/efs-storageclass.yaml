@@ -1,19 +1,19 @@
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: efs-storages  # The name of the StorageClass.
-mountOptions:
-- nolock,proto=tcp,noresvport
-- vers=3   # Mount NAS volumes' NFS protocol version. 3 indicates NFSv3, both Extreme speed and capacity type support this version; 4.1 indicates NFSv4.1, cache type only supports this version.
-parameters:
-  ChargeType: PostPaid  # The billing method. Only PostPaid is supported.
-  archiveOnDelete: "true"  # The deletion policy. true: delayed deletion. The PV and NAS file data will be archived and not deleted. false: immediate deletion. The PV and NAS file data will be permanently deleted.
-  fsId: enas-apse1a0488d77cbaacd # The ID of the NAS file system.
-  fsType: Extreme    # The file system type. Valid values: Extreme, Cache, and Capacity.
-  server: apse1a0488d77cbaacd.vpc-q6ka2mzvob9c1ntgtrul6bsu.nas.ibytepluses.com # The mount target address of the NAS file system when creating a PV of subdirectory type.
-  basePath: "/dynamic_provisioning"
-  subPathPattern: "${.PVC.namespace}/${.PVC.name}"  # The subdirectory under the mounted NAS subPath, csi-nas will create a directory within this subdirectory to act as the backend storage for dynamic volumes.
-  volumeAs: subpath  # The type of subdirectory. Valid values: subpath and filesystem.
-provisioner: nas.csi.byteplus.com  # The driver type. In this example, the driver type is nas.csi.volcengine.com, indicating the csi-nas plug-in of BytePlus.
-reclaimPolicy: Retain   # The reclaim policy. Delete: the deletion policy. Use it in conjunction with archiveOnDelete. Retain: the retention policy. When the PVC is deleted, neither the PV nor the associated file system are deleted, and you must delete them manually.
-volumeBindingMode: Immediate   # The volume binding mode. Immediate: immediately binds and allocates the PV. WaitForFirstConsumer: delays the binding and allocation of the PV.
+ apiVersion: storage.k8s.io/v1
+ kind: StorageClass
+ metadata:
+   name: efs-storages  # The name of the StorageClass.
+ mountOptions:
+ - nolock,proto=tcp,noresvport
+ - vers=3   # Mount NAS volumes' NFS protocol version. 3 indicates NFSv3, both Extreme speed and capacity type support this version; 4.1 indicates NFSv4.1, cache type only supports this version.
+ parameters:
+   ChargeType: PostPaid  # The billing method. Only PostPaid is supported.
+   archiveOnDelete: "true"  # The deletion policy. true: delayed deletion. The PV and NAS file data will be archived and not deleted. false: immediate deletion. The PV and NAS file data will be permanently deleted.
+   fsId: enas-apse1a0488d77cbaacd # The ID of the NAS file system.
+   fsType: Extreme    # The file system type. Valid values: Extreme, Cache, and Capacity.
+   server: apse1a0488d77cbaacd.vpc-q6ka2mzvob9c1ntgtrul6bsu.nas.ibytepluses.com # The mount target address of the NAS file system when creating a PV of subdirectory type.
+   basePath: "/dynamic_provisioning"
+   subPathPattern: "${.PVC.namespace}/${.PVC.name}"  # The subdirectory under the mounted NAS subPath, csi-nas will create a directory within this subdirectory to act as the backend storage for dynamic volumes.
+   volumeAs: subpath  # The type of subdirectory. Valid values: subpath and filesystem.
+ provisioner: nas.csi.byteplus.com  # The driver type. In this example, the driver type is nas.csi.volcengine.com, indicating the csi-nas plug-in of BytePlus.
+ reclaimPolicy: Retain   # The reclaim policy. Delete: the deletion policy. Use it in conjunction with archiveOnDelete. Retain: the retention policy. When the PVC is deleted, neither the PV nor the associated file system are deleted, and you must delete them manually.
+ volumeBindingMode: Immediate   # The volume binding mode. Immediate: immediately binds and allocates the PV. WaitForFirstConsumer: delays the binding and allocation of the PV.
