@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dapdap-dashboard-conf
+  namespace: dapdap-pre
+data:
+  config.toml: |
+    debug=false
+    timeout=30
+    InitDashboard=false
+      
+    [log]
+    dir = ""
+    
+    [pgsql]
+    [pgsql.db]
+    dsn = "host=${{ DATABASE_HOST }} port=5432 user=dapdap_pre password=${{ DATABASE_PASSWORD }} dbname=dapdap_pre sslmode=disable"
+    active = 20
+    idle = 20
+    
+    
+    [redis]
+    proto = "tcp"
+    addr = "${{ REDIS_HOST }}:${{ REDIS_PORT }}"
+    idle = 10
+    active = 10
+    idleTimeout = 10
+    db = ${{ REDIS_DB }}
+    password = "${{ REDIS_PASSWORD }}"
+    useTls = true
+      
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: dapdap-dashboard
+    namespace: dapdap-pre
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: dapdap-dashboard
+    template:
+        metadata:
+            labels:
+                app: dapdap-dashboard
+        spec:
+            initContainers:
+                - name: init-k8s-secret-fetcher
+                  image: bob-ap-southeast-1.cr.bytepluses.com/v1/init-k8s-secret-fetcher:latest
+                  envFrom:
+                      - secretRef:
+                            name: dapdap-secret
+                  volumeMounts:
+                      - name: "config"
+                        mountPath: "/config"
+                      - name: "rw-config"
+                        mountPath: "/rw-config"
+            containers:
+                - name: dapdap-dashboard
+                  args:
+                      - "-conf=/config/config.toml"
+                  image: bob-ap-southeast-1.cr.bytepluses.com/v1/dapdap-dashboard:latest
+                  resources:
+                      limits:
+                          memory: "1024M"
+                          cpu: "0.6"
+                      requests:
+                          memory: "150M"
+                          cpu: "0.1"
+                  volumeMounts:
+                      - name: "rw-config"
+                        mountPath: "/config"
+            volumes:
+                - name: config
+                  configMap:
+                      name: dapdap-dashboard-conf
+                      items:
+                          - key: config.toml
+                            path: config.toml
+                - name: rw-config
+                  emptyDir: {}

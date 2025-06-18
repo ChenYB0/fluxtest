@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapdap-smart-router
+  namespace: dapdap-pre
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dapdap-smart-router
+  template:
+    metadata:
+      labels:
+        app: dapdap-smart-router
+    spec:
+      containers:
+        - name: dapdap-smart-router
+          image: bob-ap-southeast-1.cr.bytepluses.com/v1/dapdap-smart-router:latest
+          command: ['node', '/app/dist/index.js']
+          env:
+            - name: NODE_SERVER_HOSTNAME
+              value: '0.0.0.0'
+            - name: NODE_SERVER_PORT
+              value: '9102'
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 9102
+            timeoutSeconds: 30
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 9102
+            timeoutSeconds: 30
+          ports:
+            - containerPort: 9102
+          resources:
+            limits:
+              memory: '300M'
+              cpu: '0.5'
+            requests:
+              memory: '100M'
+              cpu: '0.1'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dapdap-smart-router-svc
+  namespace: dapdap-pre
+spec:
+  type: ClusterIP
+  selector:
+    app: dapdap-smart-router
+  ports:
+    - port: 9102
+      protocol: TCP
+      name: port9102

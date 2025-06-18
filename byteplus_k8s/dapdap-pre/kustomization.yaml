@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dapdap-pre
+resources:
+  - dapdap-api/dapdap-api.yaml
+  - dapdap-api-job/dapdap-api-job.yaml
+  - dapdap-dashboard/dapdap-dashboard.yaml
+  - dapdap-job/dapdap-job.yaml
+  - dapdap-smart-router/dapdap-smart-router.yaml
+  - dapdap-uniswap-smart-router/dapdap-uniswap-smart-router.yaml
+#  - secrets.yaml #禁止上传 本地apply

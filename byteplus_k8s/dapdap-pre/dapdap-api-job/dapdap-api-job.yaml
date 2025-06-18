@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dapdap-api-job-conf
+  namespace: dapdap-pre
+data:
+  DATABASE_NAME: "dapdap_pre"
+  DATABASE_USERNAME: "dapdap_pre"
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dapdap-api-job
+  namespace: dapdap-pre
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name:  dapdap-api-job
+              image: bob-ap-southeast-1.cr.bytepluses.com/v1/dapdap-api:latest
+              imagePullPolicy: Always
+              command:
+                - /bin/sh
+                - -c
+                - cd /app/backend_tasks/action && python update_gas.py
+              envFrom:
+                - configMapRef:
+                    name: dapdap-api-job-conf
+                - secretRef:
+                    name: dapdap-secret
+              resources:
+                limits:
+                  memory: "300M"
+                  cpu: "0.5"
+                requests:
+                  memory: "100M"
+                  cpu: "0.1"
+          restartPolicy: OnFailure
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 1
+  startingDeadlineSeconds: 59

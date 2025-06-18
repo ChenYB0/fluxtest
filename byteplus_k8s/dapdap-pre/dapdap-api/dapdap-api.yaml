@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dapdap-api-conf
+  namespace: dapdap-pre
+data:
+  DATABASE_NAME: "dapdap_pre"
+  DATABASE_USERNAME: "dapdap_pre"
+  REDIS_USE_TLS: "1"
+  INVITE_CODE_QUANTITY: "4"
+  INVITE_LOGO: "https://assets.dapdap.net/images/invite_friends.png"
+  INVITE_TITLE: "Invite Friends"
+  DAILY_CHECK_IN_LOGO: "https://assets.dapdap.net/images/daily_connect.png"
+  DAILY_CHECK_IN_TITLE: "Daily Connect"
+  BITGET_ACCOUNT_ID: "57"
+  BITGET_INVITE_CODE_QUANTITY: "10"
+  COIN68_ACCOUNT_ID: "56"
+  COIN68_INVITE_CODE_QUANTITY: "10"
+  ACTIVITY_INVITE_REWARD: "100"
+  BNS_ENABLE: "1"
+  BNS_TWITTER_QUEST_ID: "28"
+  BITGET_REWARD_PERCENT: "0.1"
+  GALXE_ENABLE: "1"
+  GALXE_CHECKIN_CRED_ID: "375196375391944704"
+  GALXE_PARTICIPATE_CRED_ID: "375197975321792512"
+  KOL_INVITE_CODE_QUANTITY: "4"
+  DAPDAP_INVITE_ACCOUNT_ID: "29528"
+  NAMLONGDAO_ACCOUNT_ID: "35736"
+  SIGN_EXPIRE: "600"
+  DAPP_NO_ID: "Lifi Bridge,Stargate Bridge,Renzo Stake,Lido Stake,Wrap and Unwrap,super bridge,launchpad"
+  OKX_ACCOUNT_ID: "118675"
+  COIN98_ACCOUNT_ID: "146037"
+  UNISWAP_SMART_ROUTER_API: "http://dapdap-uniswap-smart-router-svc:9101"
+  SMART_ROUTER_API: "http://dapdap-smart-router-svc:9102"
+  ACTIVITY_WALLET_GEM: "10"
+  API_LIMIT_STORAGE_REDIS: "1"
+  CHAINS_ID: "[1,42161,59144]"
+  CHAINS_RPC: "[\"https://1.rpc.thirdweb.com/bdb8d1ba2cad4342c916d177b6927163\", \"https://42161.rpc.thirdweb.com/bdb8d1ba2cad4342c916d177b6927163\", \"https://59144.rpc.thirdweb.com/bdb8d1ba2cad4342c916d177b6927163\"]"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapdap-api
+  namespace: dapdap-pre
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dapdap-api
+  template:
+    metadata:
+      labels:
+        app: dapdap-api
+    spec:
+      containers:
+        - name: dapdap-api
+          image: bob-ap-southeast-1.cr.bytepluses.com/v1/dapdap-api:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              uvicorn main:app --host 0.0.0.0 --port 8101 --workers 1 2>&1 | tee /dev/fd/2 > ./app.log
+          envFrom:
+            - configMapRef:
+                name: dapdap-api-conf
+            - secretRef:
+                name: dapdap-secret
+          resources:
+            limits:
+              memory: "600M"
+              cpu: "0.3"
+            requests:
+              memory: "100M"
+              cpu: "0.1"
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8101
+            timeoutSeconds: 30
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8101
+            timeoutSeconds: 30
+          ports:
+            - containerPort: 8101
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dapdap-api-svc
+  namespace: dapdap-pre
+spec:
+  type: ClusterIP
+  selector:
+    app: dapdap-api
+  ports:
+    - port: 8101
+      protocol: TCP
+      name: port8101
