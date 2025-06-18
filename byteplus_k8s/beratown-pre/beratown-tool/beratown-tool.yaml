@@ -1,0 +1,131 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beratown-tool-conf
+  namespace: beratown-pre
+data:
+  config.toml: |
+    debug = false
+    timeout = 10
+    QuestInterval=5
+    RankInterval=60
+    ChainId=80094
+    ChainRpc="https://rpc.berachain.com"
+    ChainNode=["https://rpc.berachain.com"]
+    MultiCallContract="0xcA11bde05977b3631167028862bE2a173976CA11"
+    ETHChainNode=["https://1.rpc.thirdweb.com/bdb8d1ba2cad4342c916d177b6927163"]
+    ETHMultiCallContract="0xcA11bde05977b3631167028862bE2a173976CA11"
+    TradeStatusEnable=true
+    DashboardEnable=false
+    MemeEnable=false
+    BeraCaveEnable=true
+    StableCoins=["USDT0","USD₮0","USDe","USDC.e","USDa","sUSDe","sUSDa","rUSD","HONEY","USDT","BYUSD","NECT","MIM"]
+    RefundGasPrivateKey="${{ REFUND_GAS_PRIVATE_KEY }}"
+    BeraBorrowApiKey="${{ BERA_BORROW_API_KEY }}"
+    BoycoApiKey="${{ BOYCO_API_KEY }}"
+      
+    [log]
+    dir = ""
+    
+    [pgsql]
+    [pgsql.db]
+    dsn = "host=${{ DATABASE_HOST }} port=5432 user=${{ DATABASE_USERNAME }} password=${{ DATABASE_PASSWORD }} dbname=${{ DATABASE_NAME }} sslmode=disable application_name=tool"
+    active = 20
+    idle = 1
+    
+    [redis]
+    proto = "tcp"
+    addr = "${{ REDIS_HOST }}:6379"
+    active = 20
+    idle = 1
+    idleTimeout = 10
+    db = 5
+    password = "${{ REDIS_PASSWORD }}"
+    useTls = true
+    
+    [CoinGecko]
+    ApiKey="${{ COIN_GECKO_API_KEY }}"
+    PriceApi="https://pro-api.coingecko.com/api/v3/simple/price"
+    TokenMarketInterval=60
+    GeckoTerminalTokens=[
+    ["GRQ", "0xcA9088895e3390E503cac9ae95abaccdba20822e"],
+    ["aSUGAR", "0x804cf700de1e18f2411bd05aad5fa10d60e1900f"],
+    ["MOOLA", "0x331865bf2ea19e94bbf438cf4ee590cb6392e5a9"],
+    ["WAGMI", "0x7eaae3754b32cca569cdead488739aae110076ec"],
+    ["sGRQ", "0x0b6fb88683ba9d36ac8365ac5399ae7fd658a314"],
+    ["osBGT", "0xd2c41bf4033a83c0fc3a7f58a392bf37d6dcdb58"],
+    ["PRG", "0xbf2e152f460090ace91a456e3dee5acf703f27ad"],
+    ["DINERO", "0x09d9420332bff75522a45fcff4855f82a0a3ff50"],
+    ["THOON", "0xe80e3b8d439a4c2271cb58076ff79beb1998179e"],
+    ["BOYZ", "0xbc665a196220043b738de189aef05250e2acc700"],
+    ["JBAN", "0xb69b608da00577467f6a6d9640d3cb5d7d4b8264"],
+    ["BURR", "0x28e0e3b9817012b356119df9e217c25932d609c2"],
+    ["yBERA", "0x982940ebfc5caa2f5b5a82aac2dfa99f18bb7da4"],
+    ["sNECT", "0x597877ccf65be938bd214c4c46907669e3e62128"]
+    ]
+    
+    [ConcreteApr]
+    "0x81235952ad93987f74e074994def2a7e1d6f1fb0"="18.9"
+    "0xc3cac88fd629652bbe0c3454d5d3049368a73849"="18.9"
+    "0xe96e0d5dda2e24050f43af92ebb3293f6e605c9a"="18.9"
+    "0x585934afbf1fa9f563b80283f8b916dd8f66a9b6"="18.9"
+    "0xd08e3652e6b29ebdd58fe93b422513862fb49899"="18.9"
+    "0x8d3e53f5521927e5c78d42b4f9e08ae8df91b772"="7.8"
+    "0x49bee393825bbac404fefe6e24f34854f30905d2"="7.8"
+    "0xb6e3c1154e07f8a3dc04a9a28648c7aa30511120"="2.86"
+    "0x068d072d1ee7647b9d649a7c2046166aa81af3d3"="2.86"
+    "0x335e7b56054f830883d1509afdce58dedcefb29c"="2.86"
+    "0x127bf6361ff7495f2a69d83d9ad2092d3dfee7ab"="2.86"
+    "0xec577e989c02b294d5b8f4324224a5b63f5beef7"="166"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: beratown-tool
+    namespace: beratown-pre
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: beratown-tool
+    template:
+        metadata:
+            labels:
+                app: beratown-tool
+        spec:
+            initContainers:
+                - name: init-k8s-secret-fetcher
+                  image: bob-ap-southeast-1.cr.bytepluses.com/v1/init-k8s-secret-fetcher:latest
+                  envFrom:
+                      - secretRef:
+                            name: beratown-secret
+                  volumeMounts:
+                      - name: "config"
+                        mountPath: "/config"
+                      - name: "rw-config"
+                        mountPath: "/rw-config"
+            containers:
+                - name: beratown-tool
+                  args:
+                      - "-conf=/config/config.toml"
+                  image: bob-ap-southeast-1.cr.bytepluses.com/v1/beratown-tool:latest
+                  resources:
+                      limits:
+                          memory: "1000M"
+                          cpu: "0.3"
+                      requests:
+                          memory: "100M"
+                          cpu: "0.1"
+                  volumeMounts:
+                      - name: "rw-config"
+                        mountPath: "/config"
+            volumes:
+                - name: config
+                  configMap:
+                      name: beratown-tool-conf
+                      items:
+                          - key: config.toml
+                            path: config.toml
+                - name: rw-config
+                  emptyDir: {}

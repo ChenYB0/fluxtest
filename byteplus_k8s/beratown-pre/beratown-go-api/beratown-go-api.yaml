@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beratown-go-api-conf
+  namespace: beratown-pre
+data:
+  config.toml: |
+    debug = false
+    timeout = 10
+    port = 8080
+    AllowOrigins = ['*']
+    ApiHost="pre-api.beratown.app"
+    ChainId=80094
+    ChainNode=["https://rpc.berachain.com"]
+    MultiCallContract="0xcA11bde05977b3631167028862bE2a173976CA11"
+    TaskOnEndTime=1747180799
+    BedRockAgentId = "${{ BEDROCK_AGENT_ID }}"
+    BedRockAgentAliasId = "${{ BEDROCK_AGENT_ALIAS_ID }}"
+    JwtSecret = "${{ JWT_SECRET }}"
+    
+    [log]
+    dir = ""
+    
+    [pgsql]
+    [pgsql.db]
+    dsn = "host=${{ DATABASE_HOST }} port=5432 user=${{ DATABASE_USERNAME }} password=${{ DATABASE_PASSWORD }} dbname=${{ DATABASE_NAME }} sslmode=disable application_name=town-api"
+    active = 50
+    idle = 1
+    
+    [redis]
+    proto = "tcp"
+    addr = "${{ REDIS_HOST }}:6379"
+    active = 50
+    idle = 1
+    idleTimeout = 10
+    db = 5
+    password = "${{ REDIS_PASSWORD }}"
+    useTls = true
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beratown-go-api
+  namespace: beratown-pre
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beratown-go-api
+  template:
+    metadata:
+      labels:
+        app: beratown-go-api
+    spec:
+      serviceAccountName: beratownagentserviceaccount
+      initContainers:
+        - name: init-k8s-secret-fetcher
+          image: bob-ap-southeast-1.cr.bytepluses.com/v1/init-k8s-secret-fetcher:latest
+          envFrom:
+            - secretRef:
+                name: beratown-secret
+          volumeMounts:
+            - name: "config"
+              mountPath: "/config"
+            - name: "rw-config"
+              mountPath: "/rw-config"
+      containers:
+        - name: beratown-go-api
+          args:
+            - "-conf=/config/config.toml"
+          image: bob-ap-southeast-1.cr.bytepluses.com/v1/beratown-go-api:latest
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 30
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 30
+          resources:
+            limits:
+              memory: "1000M"
+              cpu: "0.3"
+            requests:
+              memory: "100M"
+              cpu: "0.1"
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: "rw-config"
+              mountPath: "/config"
+      volumes:
+        - name: config
+          configMap:
+            name: beratown-go-api-conf
+            items:
+              - key: config.toml
+                path: config.toml
+        - name: rw-config
+          emptyDir: {}
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beratown-go-api-svc
+  namespace: beratown-pre
+spec:
+  type: ClusterIP
+  selector:
+    app: beratown-go-api
+  ports:
+    - port: 8080
+      protocol: TCP
+      name: port8080
