@@ -69,7 +69,7 @@ spec:
     spec:
       initContainers:
         - name: init-k8s-secret-fetcher
-          image: bob-ap-southeast-1.cr.bytepluses.com/bob/init-k8s-secret-fetcher:latest
+          image: bob-ap-southeast-1.cr.bytepluses.com/v1/init-k8s-secret-fetcher:latest
           envFrom:
             - secretRef:
                 name: bob-data-secret
@@ -80,7 +80,7 @@ spec:
               mountPath: "/rw-config"
       containers:
         - name: bob-data-scanner-near-test
-          image: bob-ap-southeast-1.cr.bytepluses.com/bob/bob-data-scanner-near:latest
+          image: bob-ap-southeast-1.cr.bytepluses.com/v1/bob-data-scanner-near:latest
           resources:
             limits:
               memory: "800M"

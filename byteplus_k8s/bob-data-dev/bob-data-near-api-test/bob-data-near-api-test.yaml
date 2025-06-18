@@ -36,7 +36,7 @@ spec:
     spec:
       initContainers:
         - name: init-k8s-secret-fetcher
-          image: bob-ap-southeast-1.cr.bytepluses.com/bob/init-k8s-secret-fetcher:latest
+          image: bob-ap-southeast-1.cr.bytepluses.com/v1/init-k8s-secret-fetcher:latest
           envFrom:
             - secretRef:
                 name: bob-data-secret
@@ -47,7 +47,7 @@ spec:
               mountPath: "/rw-config"
       containers:
         - name: bob-data-near-api-test
-          image: bob-ap-southeast-1.cr.bytepluses.com/bob/bob-data-near-api:latest
+          image: bob-ap-southeast-1.cr.bytepluses.com/v1/bob-data-near-api:latest
           envFrom:
             - secretRef:
                 name: bob-data-secret
