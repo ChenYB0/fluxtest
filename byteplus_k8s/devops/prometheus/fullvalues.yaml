@@ -980,7 +980,7 @@ grafana:
 
     ## Annotations for Grafana Ingress
     ##
-    annotations:{}
+    annotations: {}
 
     ## Labels to be added to the Ingress
     ##
@@ -3132,7 +3132,7 @@ prometheus:
     # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
     # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
 
-    annotations:{}
+    annotations: {}
     labels: {}
 
     ## Redirect ingress to an additional defined port on the service
