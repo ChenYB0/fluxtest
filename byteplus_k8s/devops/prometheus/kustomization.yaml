@@ -11,7 +11,7 @@ helmCharts:
     valuesInline:
 #      installCRDs: true
       namespace: prometheus
-    valuesFile: values.yaml
+    valuesFile: fullvalues.yaml
 resources:
   - alertmanagerconfigs.yaml
   - rules/prod-rules.yaml
